@@ -46,6 +46,7 @@
 
 /* USER CODE BEGIN PV */
 
+uint8_t i2c_buffer[4];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -56,7 +57,15 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	rc_car_SetMotorSpeed(&rc_car_motor_FrontLeft,  (int8_t)i2c_buffer[0]);
+	rc_car_SetMotorSpeed(&rc_car_motor_FrontRight, (int8_t)i2c_buffer[1]);
+	rc_car_SetMotorSpeed(&rc_car_motor_RearLeft,   (int8_t)i2c_buffer[2]);
+	rc_car_SetMotorSpeed(&rc_car_motor_RearRight,  (int8_t)i2c_buffer[3]);
 
+	HAL_I2C_Slave_Receive_IT(&hi2c1, i2c_buffer, sizeof(i2c_buffer));
+}
 /* USER CODE END 0 */
 
 /**
@@ -93,7 +102,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   rc_car_MotorsInit();
-  //rc_car_SetMotorSpeed(&rc_car_motor_FrontLeft, 32); // 25% speed for testing.
+
+  // one signed byte per motor of our RC car.
+  // this is where we receive our new speeds from our i2c master.
+
+  HAL_I2C_Slave_Receive_IT(&hi2c1, i2c_buffer, sizeof(i2c_buffer));
 
 
   /* USER CODE END 2 */
