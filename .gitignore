@@ -60,3 +60,4 @@ dkms.conf
 .settings/
 *.ld
 Debug/
+*.launch
